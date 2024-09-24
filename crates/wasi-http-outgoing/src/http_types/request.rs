@@ -1,8 +1,11 @@
 use super::Method;
 use url::Url;
-use wasi::http::{
-    outgoing_handler::OutgoingRequest,
-    types::{Headers as WasiHeaders, Scheme},
+use wasi::{
+    http::{
+        outgoing_handler::OutgoingRequest,
+        types::{Headers as WasiHeaders, Scheme, OutgoingBody},
+    },
+    io::streams::{InputStream, StreamError},
 };
 
 /// An HTTP request
@@ -11,6 +14,11 @@ pub struct Request {
     method: Method,
     url: Url,
     headers: WasiHeaders,
+
+    // IMPORTANT: the order of these fields here matters. `outgoing_body` must
+    // be dropped before `body_stream`.
+    body_stream: OutputStream,
+    _outgoing_body: OutgoingBody,
 }
 
 impl Request {

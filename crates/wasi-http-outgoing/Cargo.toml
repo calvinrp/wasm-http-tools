@@ -1,10 +1,10 @@
 [package]
-name = "wasi-http-client"
-version = "0.0.0"
+name = "wasi-http-outgoing"
+version = "0.0.1"
 license = "Apache-2.0 WITH LLVM-exception"
 repository = "https://github.com/yoshuawuyts/wasm-http-tools"
 documentation = "https://docs.rs/wit-bindgen-http"
-description = "WASI-based HTTP client library"
+description = "WASI-based outgoing HTTP client library"
 readme = "README.md"
 edition = "2021"
 keywords = []
@@ -14,11 +14,13 @@ authors = ["Yoshua Wuyts <rust@yosh.is>"]
 [features]
 
 [dependencies]
-wasi = "0.12.1"
-slab = "0.4.9"
-url = "2.5.0"
+async-iterator = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+slab = { workspace = true }
+url = { workspace = true }
+wasi = { workspace = true }
 wasi-async-runtime = { workspace = true }
-async-iterator = "2.3.0"
 
 [dev-dependencies]
 futures-concurrency = "7.4.0"

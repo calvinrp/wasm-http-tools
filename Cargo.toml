@@ -1,16 +1,21 @@
 [workspace]
 members = [
-    "crates/wasi-http-client",
     "crates/openapi-bindgen",
-    "crates/wit-bindgen-http",
-    "crates/wasm-http-tools",
     "crates/wasi-async-runtime",
     "crates/wasi-http-attributes",
+    "crates/wasi-http-outgoing",
+    "crates/wasm-http-tools",
+    "crates/wit-bindgen-http",
 ]
 resolver = "2"
 
 [workspace.dependencies]
-wasi = "0.12.1"
-slab = "0.4.9"
+wasi = "0.13.1"
+slab = { version = "0.4.9", default-features = false }
 url = "2.5.0"
-wasi-async-runtime = { version = "0.1.2", path = "crates/wasi-async-runtime" }
+async-iterator = "2.3.0"
+wasi-async-runtime = { version = "0.2.0", path = "crates/wasi-async-runtime" }
+serde = "1.0.210"
+serde_json = "1.0.128"
+openapiv3 = "2.0.0"
+hashbrown = "0.14.3"

@@ -20,8 +20,13 @@ pub struct Fields(pub(crate) HashMap<FieldName, Vec<FieldValue>>);
 impl From<WasiFields> for Fields {
     fn from(wasi_fields: WasiFields) -> Self {
         let mut output = HashMap::new();
-        for (key, value) in wasi_fields.entries() {
-            let field_name = key.into();
+        for (mut key, value) in wasi_fields.entries() {
+            let field_name = if key.chars().any(|c| c.is_uppercase()) {
+                key.make_ascii_lowercase();
+                key.into()
+            } else {
+                key.into()
+            };
             let field_list: &mut Vec<_> = output.entry(field_name).or_default();
             field_list.push(value);
         }
@@ -38,6 +43,6 @@ impl TryFrom<Fields> for WasiFields {
                 list.push((name.clone().into_owned(), value));
             }
         }
-        Ok(WasiFields::from_list(&list)?)
+        WasiFields::from_list(&list)
     }
 }

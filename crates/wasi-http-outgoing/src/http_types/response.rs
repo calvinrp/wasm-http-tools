@@ -13,7 +13,7 @@ const CHUNK_SIZE: u64 = 2048;
 #[derive(Debug)]
 pub struct Response {
     bytes_read: u64,
-    content_length: u64,
+    content_length: Option<u64>,
     headers: Headers,
     reactor: Reactor,
 
@@ -30,18 +30,16 @@ impl Response {
     ) -> crate::Result<Self> {
         let headers: Headers = incoming.headers().into();
 
-        let (_, content_length) = headers
-            .0
-            .iter()
-            .find(|(k, _)| k.to_lowercase() == "content-length")
-            .expect("no content-length found; violates HTTP/1.1");
-        let content_length = content_length
-            .get(0)
-            .expect("no value found for content-length; violates HTTP/1.1");
-        let content_length = String::from_utf8(content_length.clone())
-            .unwrap()
-            .parse::<u64>()
-            .unwrap();
+        let content_length = match headers.0.get("content-length") {
+            Some(vals) => match vals.first() {
+                Some(v) => match std::str::from_utf8(v).ok() {
+                    Some(s) => s.parse().ok(),
+                    None => None,
+                },
+                None => None,
+            },
+            None => None,
+        };
 
         // `body_stream` is a child of `incoming_body` which means we cannot
         // drop the parent before we drop the child
@@ -78,7 +76,8 @@ impl async_iterator::Iterator for Response {
 
     async fn next(&mut self) -> Option<Self::Item> {
         // Calculate how many bytes we can read
-        let remaining = self.content_length - self.bytes_read;
+        let remaining = self.content_length.unwrap_or(CHUNK_SIZE) - self.bytes_read;
+
         let len = remaining.min(CHUNK_SIZE);
         if len == 0 {
             return None;
